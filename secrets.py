@@ -1,0 +1,2 @@
+SSID="Galaxy S24+ 6A40"
+PASSWORD="ioana2003"

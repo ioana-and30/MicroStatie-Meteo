@@ -6,6 +6,16 @@ from DIYables_MicroPython_LCD_I2C import LCD_I2C
 import dht
 import h2RGB
 import secrets
+from machine import Timer
+
+def interruption_handler(timer):
+    global sensor
+    sensor.measure()
+    temp = sensor.temperature()
+    humidity = sensor.humidity()
+    actualizeaza_afisaj(temp, humidity)
+
+soft_timer = Timer(mode=Timer.PERIODIC, period=1000, callback=interruption_handler)
 
 # LCD setup
 I2C_ADDR = 0x27
@@ -38,7 +48,7 @@ while not wlan.isconnected():
     time.sleep(1)
 
 # HTTP server
-addr = socket.getaddrinfo('0.0.0.0', 12345)[0][-1]
+addr = socket.getaddrinfo('0.0.0.0', 12335)[0][-1]
 s = socket.socket()
 s.bind(addr)
 s.listen(1)
@@ -75,8 +85,7 @@ def actualizeaza_afisaj(temp, humidity):
 
 try:
     sensor.measure()
-    #temp = sensor.temperature()
-    temp=-5
+    temp = sensor.temperature()
     humidity = sensor.humidity()
 
     r, g, b = h2RGB.getRGB(temp * 3)
@@ -96,7 +105,10 @@ while True:
 
     temp = "-"
     humidity = "-"
-
+    sensor.measure()
+    temp = sensor.temperature()
+    humidity = sensor.humidity()
+    actualizeaza_afisaj(temp, humidity)
     if '/temp' in request or '/humidity' in request or '/' in request:
         try:
             sensor.measure()
